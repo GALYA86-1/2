@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="uk" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Інтерактивний урок математики: Числові та буквені вирази. Формули | 5 клас</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            yellow: '#ffcc00',
+                            yellowLight: '#ffdb4d',
+                            dark: '#121212',
+                            card: '#1e1e1e',
+                            border: '#ffcc00',
+                            accent: '#ff9900'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background-color: #1a1a1a;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 2px solid #ffcc00;
+            transition: height 0.3s ease;
+        }
+        canvas {
+            touch-action: none;
+            cursor: crosshair;
+            display: block;
+        }
+        .grid-bg {
+            background-image: linear-gradient(to right, rgba(255, 204, 0, 0.1) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 204, 0, 0.1) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .block-highlight {
+            border: 3px solid #ffcc00;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+        }
+        .yellow-box {
+            background-color: #ffcc00;
+            color: #000000;
+            font-weight: 700;
+        }
+        .match-btn {
+            transition: all 0.2s ease;
+        }
+        .match-btn.selected {
+            border-color: #ffcc00;
+            background-color: #3b82f6;
+            color: #ffffff;
+            transform: scale(1.03);
+        }
+        .match-btn.matched {
+            border-color: #22c55e;
+            background-color: #15803d;
+            color: #ffffff;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+        /* Style for active text input overlay without borders/comments */
+        .canvas-textarea {
+            position: absolute;
+            background: transparent;
+            color: #ffcc00;
+            border: none;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 26px;
+            padding: 0;
+            margin: 0;
+            resize: none;
+            z-index: 100;
+            overflow: hidden;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-gray-100">
+
+    <!-- Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-brand-card/95 backdrop-blur-md border-b-2 border-brand-yellow px-4 py-4 shadow-xl">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-4">
+                <div class="bg-brand-yellow text-black font-black px-4 py-2 rounded-xl text-xl tracking-wider shadow-md">
+                    5 КЛАС
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black text-brand-yellow uppercase tracking-wide">
+                        Числові та буквені вирази. Формули
+                    </h1>
+                    <p class="text-sm font-semibold text-gray-300">
+                        Дата уроку: <span class="text-brand-yellow">27.10.2026</span> | Автор розробки: <span class="text-brand-yellow">Галина Фолис</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Controls (Zoom & Fullscreen) -->
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center bg-brand-dark rounded-xl p-1.5 border border-brand-yellow">
+                    <button onclick="changeFontSize(-1)" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded-lg text-base font-bold text-white" title="Зменшити шрифт">A-</button>
+                    <span id="font-size-val" class="px-3 text-sm text-brand-yellow font-mono font-bold">100%</span>
+                    <button onclick="changeFontSize(1)" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded-lg text-base font-bold text-white" title="Збільшити шрифт">A+</button>
+                </div>
+                <button onclick="toggleFullscreen()" class="bg-brand-dark p-2.5 rounded-xl hover:bg-gray-800 border border-brand-yellow text-brand-yellow" title="Повний екран">
+                    <i class="fas font-solid fa-expand text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main id="main-content" class="max-w-7xl mx-auto px-4 py-8 space-y-10 flex-grow w-full text-base">
+
+        <!-- Block 0: Interactive Warmup / Sorting Game -->
+        <section class="bg-brand-card rounded-2xl p-6 block-highlight space-y-4">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-yellow pb-3">
+                <i class="fa-solid fa-gamepad text-brand-yellow text-3xl"></i>
+                <h2 class="text-2xl font-black text-white uppercase">Інтерактивна розминка: Математичне сортування</h2>
+            </div>
+            <p class="text-lg text-gray-200">Перетягніть вирази у відповідні блоки за їхнім типом:</p>
+
+            <div id="sorting-game" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="drop-zones">
+                    <div data-category="num" class="drop-zone bg-brand-dark border-2 border-dashed border-brand-yellow rounded-xl p-4 min-h-[140px]">
+                        <h3 class="text-lg font-extrabold text-brand-yellow mb-3 text-center uppercase">Числові вирази</h3>
+                        <div class="cards-container flex flex-wrap gap-2 min-h-[80px]"></div>
+                    </div>
+                    <div data-category="lit" class="drop-zone bg-brand-dark border-2 border-dashed border-brand-yellow rounded-xl p-4 min-h-[140px]">
+                        <h3 class="text-lg font-extrabold text-brand-yellow mb-3 text-center uppercase">Буквені вирази</h3>
+                        <div class="cards-container flex flex-wrap gap-2 min-h-[80px]"></div>
+                    </div>
+                    <div data-category="form" class="drop-zone bg-brand-dark border-2 border-dashed border-brand-yellow rounded-xl p-4 min-h-[140px]">
+                        <h3 class="text-lg font-extrabold text-brand-yellow mb-3 text-center uppercase">Формули</h3>
+                        <div class="cards-container flex flex-wrap gap-2 min-h-[80px]"></div>
+                    </div>
+                </div>
+
+                <div id="draggable-source" class="bg-brand-dark p-5 rounded-xl border-2 border-gray-700 flex flex-wrap gap-3 justify-center min-h-[80px]">
+                    <div draggable="true" data-category="num" class="drag-card bg-gray-800 hover:bg-gray-700 text-white font-mono text-base font-bold px-4 py-2.5 rounded-xl cursor-grab border-2 border-brand-yellow">3000 : 1000</div>
+                    <div draggable="true" data-category="lit" class="drag-card bg-gray-800 hover:bg-gray-700 text-white font-mono text-base font-bold px-4 py-2.5 rounded-xl cursor-grab border-2 border-brand-yellow">a + c</div>
+                    <div draggable="true" data-category="form" class="drag-card bg-gray-800 hover:bg-gray-700 text-white font-mono text-base font-bold px-4 py-2.5 rounded-xl cursor-grab border-2 border-brand-yellow">P = (a + b) · 2</div>
+                    <div draggable="true" data-category="num" class="drag-card bg-gray-800 hover:bg-gray-700 text-white font-mono text-base font-bold px-4 py-2.5 rounded-xl cursor-grab border-2 border-brand-yellow">(520 - 480) · (39 + 47)</div>
+                    <div draggable="true" data-category="lit" class="drag-card bg-gray-800 hover:bg-gray-700 text-white font-mono text-base font-bold px-4 py-2.5 rounded-xl cursor-grab border-2 border-brand-yellow">(x - y) · (m : n)</div>
+                    <div draggable="true" data-category="form" class="drag-card bg-gray-800 hover:bg-gray-700 text-white font-mono text-base font-bold px-4 py-2.5 rounded-xl cursor-grab border-2 border-brand-yellow">m = 180 - 13 · x</div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button onclick="resetSortingGame()" class="text-sm font-bold text-brand-yellow hover:underline">
+                        <i class="fa-solid fa-arrows-rotate mr-1"></i> Скинути розминку
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Block 1: Theory & Oral Task -->
+        <section class="bg-brand-card rounded-2xl p-6 block-highlight space-y-6">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-yellow pb-3">
+                <i class="fa-solid fa-comments text-brand-yellow text-3xl"></i>
+                <h2 class="text-2xl font-black text-white uppercase">Усні вправи та Актуалізація</h2>
+            </div>
+
+            <div class="bg-brand-dark p-6 rounded-xl border-2 border-gray-700 space-y-4">
+                <div class="yellow-box p-4 rounded-xl text-xl leading-relaxed shadow-lg">
+                    За день інтернет-магазин продав <span class="text-red-700 font-black">a</span> смартфонів, <span class="text-red-700 font-black">b</span> планшетів і <span class="text-red-700 font-black">c</span> ноутбуків. Що означають вирази:
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div class="bg-brand-card p-5 rounded-xl border-2 border-brand-yellow space-y-3">
+                        <div class="font-mono text-brand-yellow font-black text-2xl">1) a + c</div>
+                        <button onclick="toggleAnswer('oral-1')" class="bg-gray-800 hover:bg-gray-700 text-white font-bold text-sm px-4 py-2 rounded-lg border border-brand-yellow transition">
+                            Показати значення
+                        </button>
+                        <p id="oral-1" class="hidden text-base text-green-400 font-bold pt-1">
+                            Загальна кількість смартфонів і ноутбуків, проданих за день.
+                        </p>
+                    </div>
+
+                    <div class="bg-brand-card p-5 rounded-xl border-2 border-brand-yellow space-y-3">
+                        <div class="font-mono text-brand-yellow font-black text-2xl">2) b – c</div>
+                        <button onclick="toggleAnswer('oral-2')" class="bg-gray-800 hover:bg-gray-700 text-white font-bold text-sm px-4 py-2 rounded-lg border border-brand-yellow transition">
+                            Показати значення
+                        </button>
+                        <p id="oral-2" class="hidden text-base text-green-400 font-bold pt-1">
+                            На скільки більше планшетів, ніж ноутбуків, було продано за день.
+                        </p>
+                    </div>
+
+                    <div class="bg-brand-card p-5 rounded-xl border-2 border-brand-yellow space-y-3">
+                        <div class="font-mono text-brand-yellow font-black text-2xl">3) (a + b) – c</div>
+                        <button onclick="toggleAnswer('oral-3')" class="bg-gray-800 hover:bg-gray-700 text-white font-bold text-sm px-4 py-2 rounded-lg border border-brand-yellow transition">
+                            Показати значення
+                        </button>
+                        <p id="oral-3" class="hidden text-base text-green-400 font-bold pt-1">
+                            На скільки сума проданих смартфонів і планшетів більша за кількість ноутбуків.
+                        </p>
+                    </div>
+
+                    <div class="bg-brand-card p-5 rounded-xl border-2 border-brand-yellow space-y-3">
+                        <div class="font-mono text-brand-yellow font-black text-2xl">4) a : c</div>
+                        <button onclick="toggleAnswer('oral-4')" class="bg-gray-800 hover:bg-gray-700 text-white font-bold text-sm px-4 py-2 rounded-lg border border-brand-yellow transition">
+                            Показати значення
+                        </button>
+                        <p id="oral-4" class="hidden text-base text-green-400 font-bold pt-1">
+                            У скільки разів більше було продано смартфонів, ніж ноутбуків.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Block 2: MATCHING GAME Task 474 -->
+        <section class="bg-brand-card rounded-2xl p-6 block-highlight space-y-6">
+            <div class="flex justify-between items-start flex-wrap gap-2 border-b-2 border-brand-yellow pb-3">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-link text-brand-yellow text-3xl"></i>
+                    <div>
+                        <span class="bg-brand-yellow text-black text-xs font-black px-3 py-1 rounded-md uppercase">4 рівень | Стор. 68</span>
+                        <h2 class="text-2xl font-black text-white uppercase mt-1">Завдання № 474. Гра на відповідність (Matching)</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="yellow-box p-4 rounded-xl text-lg shadow-md">
+                Встановіть відповідність: оберіть величину ліворуч, а потім відповідне значення в кілограмах праворуч!
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <!-- Left Column (Questions) -->
+                <div class="space-y-3" id="match-left">
+                    <button onclick="selectMatchLeft(this, '1')" class="match-left-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left flex justify-between items-center">
+                        <span>1) 3000 г</span>
+                        <i class="fa-solid fa-arrow-right text-brand-yellow"></i>
+                    </button>
+                    <button onclick="selectMatchLeft(this, '2')" class="match-left-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left flex justify-between items-center">
+                        <span>2) 15 000 г</span>
+                        <i class="fa-solid fa-arrow-right text-brand-yellow"></i>
+                    </button>
+                    <button onclick="selectMatchLeft(this, '3')" class="match-left-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left flex justify-between items-center">
+                        <span>3) 3 т</span>
+                        <i class="fa-solid fa-arrow-right text-brand-yellow"></i>
+                    </button>
+                    <button onclick="selectMatchLeft(this, '4')" class="match-left-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left flex justify-between items-center">
+                        <span>4) 3 т 210 кг</span>
+                        <i class="fa-solid fa-arrow-right text-brand-yellow"></i>
+                    </button>
+                    <button onclick="selectMatchLeft(this, '5')" class="match-left-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left flex justify-between items-center">
+                        <span>5) 9 ц</span>
+                        <i class="fa-solid fa-arrow-right text-brand-yellow"></i>
+                    </button>
+                    <button onclick="selectMatchLeft(this, '6')" class="match-left-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left flex justify-between items-center">
+                        <span>6) 9 ц 5 кг</span>
+                        <i class="fa-solid fa-arrow-right text-brand-yellow"></i>
+                    </button>
+                </div>
+
+                <!-- Right Column (Answers Shuffled) -->
+                <div class="space-y-3" id="match-right">
+                    <button onclick="selectMatchRight(this, '3')" class="match-right-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left">
+                        A) 3000 кг
+                    </button>
+                    <button onclick="selectMatchRight(this, '1')" class="match-right-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left">
+                        Б) 3 кг
+                    </button>
+                    <button onclick="selectMatchRight(this, '6')" class="match-right-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left">
+                        В) 905 кг
+                    </button>
+                    <button onclick="selectMatchRight(this, '2')" class="match-right-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left">
+                        Г) 15 кг
+                    </button>
+                    <button onclick="selectMatchRight(this, '5')" class="match-right-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left">
+                        Д) 900 кг
+                    </button>
+                    <button onclick="selectMatchRight(this, '4')" class="match-right-btn match-btn w-full bg-brand-dark text-white font-mono text-lg font-bold p-4 rounded-xl border-2 border-gray-700 text-left">
+                        Е) 3210 кг
+                    </button>
+                </div>
+            </div>
+            <div id="match-status" class="hidden text-center text-lg font-extrabold p-3 rounded-xl"></div>
+        </section>
+
+        <!-- Block 3: Classwork Tasks with Canvas & Text Typing & Resizing -->
+        <section class="space-y-8">
+            <div class="flex items-center space-x-3 bg-brand-card p-4 rounded-2xl block-highlight">
+                <i class="fa-solid fa-pen-ruler text-brand-yellow text-3xl"></i>
+                <h2 class="text-2xl font-black text-white uppercase">Практичні завдання (з полотном-зошитом)</h2>
+            </div>
+
+            <!-- TASK 2: № 457 -->
+            <div class="bg-brand-card rounded-2xl p-6 block-highlight space-y-4">
+                <span class="bg-brand-yellow text-black text-xs font-black px-3 py-1 rounded-md uppercase">3 рівень | Стор. 67</span>
+                <h3 class="text-xl font-black text-white">Завдання № 457. Числові вирази та їх значення</h3>
+
+                <div class="yellow-box p-4 rounded-xl text-lg shadow-md space-y-1">
+                    <p>1) Добуток різниці чисел 520 і 480 та суми чисел 39 і 47;</p>
+                    <p>2) Частка від ділення суми чисел 4275 і 5121 на 27.</p>
+                </div>
+
+                <!-- Canvas Component -->
+                <div class="space-y-2">
+                    <div class="text-sm font-bold text-gray-300 flex justify-between items-center flex-wrap gap-2">
+                        <span>Полотно для обчислень (використовуйте олівець або ТЕКСТ для друку):</span>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="resizeCanvasHeight(1, 100)" class="bg-gray-800 hover:bg-gray-700 text-brand-yellow px-2.5 py-1 rounded border border-brand-yellow text-xs font-bold"><i class="fa-solid fa-expand"></i> + Збільшити поле</button>
+                            <button onclick="resizeCanvasHeight(1, -100)" class="bg-gray-800 hover:bg-gray-700 text-brand-yellow px-2.5 py-1 rounded border border-brand-yellow text-xs font-bold"><i class="fa-solid fa-compress"></i> - Зменшити поле</button>
+                        </div>
+                    </div>
+                    <div id="canvas-container-1" class="canvas-container grid-bg">
+                        <canvas id="canvas-1"></canvas>
+                    </div>
+                    <!-- Canvas Toolbar -->
+                    <div class="flex flex-wrap items-center gap-2 bg-brand-dark p-3 rounded-xl border-2 border-brand-yellow text-sm">
+                        <button onclick="setTool(1, 'pen', event)" class="tool-btn-1 bg-brand-yellow text-black px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-pen"></i> Олівець</button>
+                        <button onclick="setTool(1, 'text', event)" class="tool-btn-1 bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-font"></i> ДРУК ТЕКСТУ</button>
+                        <button onclick="setTool(1, 'eraser', event)" class="tool-btn-1 bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-eraser"></i> Гумка</button>
+                        <input type="color" id="color-1" value="#ffcc00" onchange="setColor(1, this.value)" class="w-8 h-8 bg-transparent cursor-pointer rounded">
+                        <button onclick="undoCanvas(1)" class="bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-rotate-left"></i> Назад</button>
+                        <button onclick="clearCanvas(1)" class="bg-red-900/60 text-red-200 px-3 py-1.5 rounded-lg font-bold hover:bg-red-800 ml-auto"><i class="fa-solid fa-trash"></i> Очистити</button>
+                    </div>
+                </div>
+
+                <div class="bg-brand-dark p-4 rounded-xl border-2 border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-base font-bold">Відповідь 1):</span>
+                        <input type="number" id="input-task-2-1" placeholder="значення" class="bg-gray-800 border-2 border-brand-yellow rounded-lg px-3 py-2 text-base text-white font-mono font-bold focus:outline-none w-36">
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-base font-bold">Відповідь 2):</span>
+                        <input type="number" id="input-task-2-2" placeholder="значення" class="bg-gray-800 border-2 border-brand-yellow rounded-lg px-3 py-2 text-base text-white font-mono font-bold focus:outline-none w-36">
+                        <button onclick="checkTask2()" class="bg-brand-yellow text-black font-extrabold px-4 py-2 rounded-lg text-base hover:bg-yellow-400 transition ml-auto">Перевірити</button>
+                    </div>
+                </div>
+                <div id="result-task-2" class="hidden text-base p-3 rounded-xl font-bold"></div>
+            </div>
+
+            <!-- TASK 3: № 460 -->
+            <div class="bg-brand-card rounded-2xl p-6 block-highlight space-y-4">
+                <span class="bg-brand-yellow text-black text-xs font-black px-3 py-1 rounded-md uppercase">3 рівень | Стор. 67</span>
+                <h3 class="text-xl font-black text-white">Завдання № 460. Вартість покупки</h3>
+
+                <div class="yellow-box p-4 rounded-xl text-lg shadow-md leading-relaxed">
+                    Школярка придбала ручку за 8 грн і зошит, який на <span class="text-red-700 font-black">a</span> грн дорожчий.<br>
+                    1) Складіть вираз для обчислення вартості покупки та спростіть його.<br>
+                    2) Обчисліть значення виразу, якщо <span class="text-red-700 font-black">a = 12</span>.
+                </div>
+
+                <!-- Canvas -->
+                <div class="space-y-2">
+                    <div class="text-sm font-bold text-gray-300 flex justify-between items-center flex-wrap gap-2">
+                        <span>Полотно для обчислень:</span>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="resizeCanvasHeight(2, 100)" class="bg-gray-800 hover:bg-gray-700 text-brand-yellow px-2.5 py-1 rounded border border-brand-yellow text-xs font-bold"><i class="fa-solid fa-expand"></i> + Збільшити поле</button>
+                            <button onclick="resizeCanvasHeight(2, -100)" class="bg-gray-800 hover:bg-gray-700 text-brand-yellow px-2.5 py-1 rounded border border-brand-yellow text-xs font-bold"><i class="fa-solid fa-compress"></i> - Зменшити поле</button>
+                        </div>
+                    </div>
+                    <div id="canvas-container-2" class="canvas-container grid-bg">
+                        <canvas id="canvas-2"></canvas>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 bg-brand-dark p-3 rounded-xl border-2 border-brand-yellow text-sm">
+                        <button onclick="setTool(2, 'pen', event)" class="tool-btn-2 bg-brand-yellow text-black px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-pen"></i> Олівець</button>
+                        <button onclick="setTool(2, 'text', event)" class="tool-btn-2 bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-font"></i> ДРУК ТЕКСТУ</button>
+                        <button onclick="setTool(2, 'eraser', event)" class="tool-btn-2 bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-eraser"></i> Гумка</button>
+                        <input type="color" id="color-2" value="#ffcc00" onchange="setColor(2, this.value)" class="w-8 h-8 bg-transparent cursor-pointer rounded">
+                        <button onclick="undoCanvas(2)" class="bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-rotate-left"></i> Назад</button>
+                        <button onclick="clearCanvas(2)" class="bg-red-900/60 text-red-200 px-3 py-1.5 rounded-lg font-bold hover:bg-red-800 ml-auto"><i class="fa-solid fa-trash"></i> Очистити</button>
+                    </div>
+                </div>
+
+                <div class="bg-brand-dark p-4 rounded-xl border-2 border-gray-700 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="text-base font-bold">Вартість покупки при a = 12:</div>
+                    <div class="flex items-center space-x-3">
+                        <input type="number" id="input-task-3" placeholder="грн" class="bg-gray-800 border-2 border-brand-yellow rounded-lg px-3 py-2 text-base text-white font-mono font-bold focus:outline-none w-36">
+                        <span class="text-base font-bold">грн</span>
+                        <button onclick="checkTask3()" class="bg-brand-yellow text-black font-extrabold px-4 py-2 rounded-lg text-base hover:bg-yellow-400 transition">Перевірити</button>
+                    </div>
+                </div>
+                <div id="result-task-3" class="hidden text-base p-3 rounded-xl font-bold"></div>
+            </div>
+
+            <!-- TASK 4: № 462 WITH DRAWN RECTANGLE SHIFTED LEFT -->
+            <div class="bg-brand-card rounded-2xl p-6 block-highlight space-y-4">
+                <span class="bg-brand-yellow text-black text-xs font-black px-3 py-1 rounded-md uppercase">3 рівень | Стор. 67</span>
+                <h3 class="text-xl font-black text-white">Завдання № 462. Периметр прямокутника</h3>
+
+                <div class="yellow-box p-4 rounded-xl text-lg shadow-md leading-relaxed">
+                    Запишіть формулу для обчислення периметра <span class="text-red-700 font-black">P</span> прямокутника. Знайдіть <span class="text-red-700 font-black">P</span>, якщо сторона <span class="text-red-700 font-black">a = 12 см</span>, а сторона <span class="text-red-700 font-black">b = 3 дм</span>.
+                </div>
+
+                <!-- Canvas PRE-DRAWN RECTANGLE (Shifted Left) -->
+                <div class="space-y-2">
+                    <div class="text-sm font-bold text-gray-300 flex justify-between items-center flex-wrap gap-2">
+                        <span>Полотно з малюнком (прямокутник ліворуч, місце для розв'язку праворуч):</span>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="resizeCanvasHeight(3, 100)" class="bg-gray-800 hover:bg-gray-700 text-brand-yellow px-2.5 py-1 rounded border border-brand-yellow text-xs font-bold"><i class="fa-solid fa-expand"></i> + Збільшити поле</button>
+                            <button onclick="resizeCanvasHeight(3, -100)" class="bg-gray-800 hover:bg-gray-700 text-brand-yellow px-2.5 py-1 rounded border border-brand-yellow text-xs font-bold"><i class="fa-solid fa-compress"></i> - Зменшити поле</button>
+                        </div>
+                    </div>
+                    <div id="canvas-container-3" class="canvas-container grid-bg">
+                        <canvas id="canvas-3"></canvas>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 bg-brand-dark p-3 rounded-xl border-2 border-brand-yellow text-sm">
+                        <button onclick="setTool(3, 'pen', event)" class="tool-btn-3 bg-brand-yellow text-black px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-pen"></i> Олівець</button>
+                        <button onclick="setTool(3, 'text', event)" class="tool-btn-3 bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-font"></i> ДРУК ТЕКСТУ</button>
+                        <button onclick="setTool(3, 'eraser', event)" class="tool-btn-3 bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-eraser"></i> Гумка</button>
+                        <input type="color" id="color-3" value="#ffcc00" onchange="setColor(3, this.value)" class="w-8 h-8 bg-transparent cursor-pointer rounded">
+                        <button onclick="undoCanvas(3)" class="bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-rotate-left"></i> Назад</button>
+                        <button onclick="clearCanvas(3)" class="bg-red-900/60 text-red-200 px-3 py-1.5 rounded-lg font-bold hover:bg-red-800 ml-auto"><i class="fa-solid fa-trash"></i> Очистити</button>
+                    </div>
+                </div>
+
+                <div class="bg-brand-dark p-4 rounded-xl border-2 border-gray-700 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="text-base font-bold">Обчислений периметр P (в сантиметрах):</div>
+                    <div class="flex items-center space-x-3">
+                        <input type="number" id="input-task-4" placeholder="см" class="bg-gray-800 border-2 border-brand-yellow rounded-lg px-3 py-2 text-base text-white font-mono font-bold focus:outline-none w-36">
+                        <span class="text-base font-bold">см</span>
+                        <button onclick="checkTask4()" class="bg-brand-yellow text-black font-extrabold px-4 py-2 rounded-lg text-base hover:bg-yellow-400 transition">Перевірити</button>
+                    </div>
+                </div>
+                <div id="result-task-4" class="hidden text-base p-3 rounded-xl font-bold"></div>
+            </div>
+
+            <!-- TASK 5: № 468 -->
+            <div class="bg-brand-card rounded-2xl p-6 block-highlight space-y-4">
+                <span class="bg-brand-yellow text-black text-xs font-black px-3 py-1 rounded-md uppercase">4 рівень | Стор. 68</span>
+                <h3 class="text-xl font-black text-white">Завдання № 468. Купівля пиріжків</h3>
+
+                <div class="yellow-box p-4 rounded-xl text-lg shadow-md leading-relaxed">
+                    Маючи 180 грн, хлопчик купив <span class="text-red-700 font-black">x</span> пиріжків по 13 грн. Кількість грошей, що залишилися в нього після оплати покупки, позначте буквою <span class="text-red-700 font-black">m</span>.<br>
+                    Складіть формулу для обчислення <span class="text-red-700 font-black">m</span> та обчисліть його значення, якщо <span class="text-red-700 font-black">x = 9</span>.
+                </div>
+
+                <!-- Canvas -->
+                <div class="space-y-2">
+                    <div class="text-sm font-bold text-gray-300 flex justify-between items-center flex-wrap gap-2">
+                        <span>Полотно для обчислень:</span>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="resizeCanvasHeight(4, 100)" class="bg-gray-800 hover:bg-gray-700 text-brand-yellow px-2.5 py-1 rounded border border-brand-yellow text-xs font-bold"><i class="fa-solid fa-expand"></i> + Збільшити поле</button>
+                            <button onclick="resizeCanvasHeight(4, -100)" class="bg-gray-800 hover:bg-gray-700 text-brand-yellow px-2.5 py-1 rounded border border-brand-yellow text-xs font-bold"><i class="fa-solid fa-compress"></i> - Зменшити поле</button>
+                        </div>
+                    </div>
+                    <div id="canvas-container-4" class="canvas-container grid-bg">
+                        <canvas id="canvas-4"></canvas>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 bg-brand-dark p-3 rounded-xl border-2 border-brand-yellow text-sm">
+                        <button onclick="setTool(4, 'pen', event)" class="tool-btn-4 bg-brand-yellow text-black px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-pen"></i> Олівець</button>
+                        <button onclick="setTool(4, 'text', event)" class="tool-btn-4 bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-font"></i> ДРУК ТЕКСТУ</button>
+                        <button onclick="setTool(4, 'eraser', event)" class="tool-btn-4 bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-eraser"></i> Гумка</button>
+                        <input type="color" id="color-4" value="#ffcc00" onchange="setColor(4, this.value)" class="w-8 h-8 bg-transparent cursor-pointer rounded">
+                        <button onclick="undoCanvas(4)" class="bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-rotate-left"></i> Назад</button>
+                        <button onclick="clearCanvas(4)" class="bg-red-900/60 text-red-200 px-3 py-1.5 rounded-lg font-bold hover:bg-red-800 ml-auto"><i class="fa-solid fa-trash"></i> Очистити</button>
+                    </div>
+                </div>
+
+                <div class="bg-brand-dark p-4 rounded-xl border-2 border-gray-700 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="text-base font-bold">Залишок грошей m (при x = 9):</div>
+                    <div class="flex items-center space-x-3">
+                        <input type="number" id="input-task-5" placeholder="грн" class="bg-gray-800 border-2 border-brand-yellow rounded-lg px-3 py-2 text-base text-white font-mono font-bold focus:outline-none w-36">
+                        <span class="text-base font-bold">грн</span>
+                        <button onclick="checkTask5()" class="bg-brand-yellow text-black font-extrabold px-4 py-2 rounded-lg text-base hover:bg-yellow-400 transition">Перевірити</button>
+                    </div>
+                </div>
+                <div id="result-task-5" class="hidden text-base p-3 rounded-xl font-bold"></div>
+            </div>
+        </section>
+
+        <!-- Block 4: HIGHLIGHTED INDEPENDENT TASK -->
+        <section class="bg-brand-card rounded-2xl p-8 border-4 border-brand-yellow shadow-2xl space-y-6">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-yellow pb-4">
+                <i class="fa-solid fa-star text-brand-yellow text-4xl animate-bounce"></i>
+                <div>
+                    <span class="bg-red-600 text-white font-black px-3 py-1 rounded-md text-xs uppercase tracking-wider">Окремий блок</span>
+                    <h2 class="text-2xl md:text-3xl font-black text-brand-yellow uppercase mt-1">Завдання для самостійного виконання</h2>
+                </div>
+            </div>
+
+            <div class="yellow-box p-5 rounded-2xl text-xl shadow-xl leading-relaxed">
+                Записати буквений вираз та знайти його значення:<br>
+                <em class="text-black font-black">«Різницю чисел x і y помножити на частку чисел m і n»</em>,<br>
+                якщо <span class="font-mono text-red-800 font-black">x = 48, y = 17, m = 72, n = 12</span>.
+            </div>
+
+            <!-- Canvas -->
+            <div class="space-y-2">
+                <div class="text-sm font-bold text-gray-300 flex justify-between items-center flex-wrap gap-2">
+                    <span>Полотно для обчислень:</span>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="resizeCanvasHeight(5, 100)" class="bg-gray-800 hover:bg-gray-700 text-brand-yellow px-2.5 py-1 rounded border border-brand-yellow text-xs font-bold"><i class="fa-solid fa-expand"></i> + Збільшити поле</button>
+                        <button onclick="resizeCanvasHeight(5, -100)" class="bg-gray-800 hover:bg-gray-700 text-brand-yellow px-2.5 py-1 rounded border border-brand-yellow text-xs font-bold"><i class="fa-solid fa-compress"></i> - Зменшити поле</button>
+                    </div>
+                </div>
+                <div id="canvas-container-5" class="canvas-container grid-bg">
+                    <canvas id="canvas-5"></canvas>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 bg-brand-dark p-3 rounded-xl border-2 border-brand-yellow text-sm">
+                    <button onclick="setTool(5, 'pen', event)" class="tool-btn-5 bg-brand-yellow text-black px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-pen"></i> Олівець</button>
+                    <button onclick="setTool(5, 'text', event)" class="tool-btn-5 bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-font"></i> ДРУК ТЕКСТУ</button>
+                    <button onclick="setTool(5, 'eraser', event)" class="tool-btn-5 bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-eraser"></i> Гумка</button>
+                    <input type="color" id="color-5" value="#ffcc00" onchange="setColor(5, this.value)" class="w-8 h-8 bg-transparent cursor-pointer rounded">
+                    <button onclick="undoCanvas(5)" class="bg-gray-800 text-gray-200 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-700"><i class="fa-solid fa-rotate-left"></i> Назад</button>
+                    <button onclick="clearCanvas(5)" class="bg-red-900/60 text-red-200 px-3 py-1.5 rounded-lg font-bold hover:bg-red-800 ml-auto"><i class="fa-solid fa-trash"></i> Очистити</button>
+                </div>
+            </div>
+
+            <div class="bg-brand-dark p-5 rounded-2xl border-2 border-brand-yellow flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="text-lg font-black text-white">Введіть кінцеве обчислене значення:</div>
+                <div class="flex items-center space-x-3">
+                    <input type="number" id="input-task-6" placeholder="відповідь" class="bg-gray-800 border-2 border-brand-yellow rounded-xl px-4 py-2.5 text-lg text-white font-mono font-bold focus:outline-none w-40">
+                    <button onclick="checkTask6()" class="bg-brand-yellow text-black font-black px-6 py-2.5 rounded-xl text-lg hover:bg-yellow-400 transition shadow-lg">Перевірити</button>
+                </div>
+            </div>
+            <div id="result-task-6" class="hidden text-lg p-4 rounded-xl font-bold"></div>
+        </section>
+
+        <!-- Block 5: Physical Break -->
+        <section class="bg-brand-card rounded-2xl p-6 block-highlight text-center space-y-4">
+            <div class="inline-flex items-center justify-center bg-brand-yellow text-black p-4 rounded-full text-4xl shadow-lg">
+                <i class="fa-solid fa-child-reaching"></i>
+            </div>
+            <h2 class="text-2xl font-black text-white uppercase">Фізкультхвилинка (Перерва для очей)</h2>
+            <p class="text-lg text-gray-200 max-w-2xl mx-auto">
+                Зніміть напругу! Поклипайте очима 10 разів, зробіть кілька колових обертів шиєю та плечима назад, витягніть руки вгору та глибоко вдихніть.
+            </p>
+            <div>
+                <button onclick="startBreakTimer()" id="timer-btn" class="bg-brand-yellow text-black font-black px-8 py-3 rounded-xl hover:bg-yellow-400 transition text-lg shadow-xl">
+                    <i class="fa-solid fa-stopwatch mr-2"></i> Розпочати відпочинок (30 сек)
+                </button>
+                <div id="timer-display" class="hidden text-3xl font-mono font-black text-brand-yellow mt-4">30</div>
+            </div>
+        </section>
+
+        <!-- Block 6: Homework Section -->
+        <section class="bg-brand-card rounded-2xl p-6 block-highlight space-y-4">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-yellow pb-3">
+                <i class="fa-solid fa-house-laptop text-brand-yellow text-3xl"></i>
+                <h2 class="text-2xl font-black text-white uppercase">Домашнє завдання (з презентації)</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-brand-dark p-5 rounded-xl border-2 border-gray-700 space-y-3">
+                    <span class="bg-brand-yellow text-black text-xs font-black px-3 py-1 rounded uppercase">Завдання №1</span>
+                    <p class="text-base text-gray-200 leading-relaxed">
+                        Маючи 180 грн, хлопчик купив <span class="font-bold text-brand-yellow">x</span> пиріжків по 13 грн. Кількість грошей, що залишилися в нього після оплати покупки, позначте буквою <span class="font-bold text-brand-yellow">m</span>. Складіть формулу для обчислення <span class="font-bold text-brand-yellow">m</span> та обчисліть його, якщо <span class="font-bold text-brand-yellow">x = 9</span>.
+                    </p>
+                </div>
+                <div class="bg-brand-dark p-5 rounded-xl border-2 border-gray-700 space-y-3">
+                    <span class="bg-brand-yellow text-black text-xs font-black px-3 py-1 rounded uppercase">Завдання №2</span>
+                    <p class="text-base text-gray-200 leading-relaxed">
+                        Знайдіть значення виразу:<br>
+                        1) <span class="font-mono text-brand-yellow font-bold">m – n</span>, якщо <span class="font-mono text-gray-300">m = 77 199, n = 8 901</span>;<br>
+                        2) <span class="font-mono text-brand-yellow font-bold">(a + b) ⋅ c</span>, якщо <span class="font-mono text-gray-300">a = 108, b = 375, c = 33</span>.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Block 7: Reflection "Скарбничка успіху" WITH LARGE ICONS -->
+        <section class="bg-brand-card rounded-2xl p-8 block-highlight text-center space-y-6">
+            <div class="space-y-2">
+                <h2 class="text-3xl font-black text-brand-yellow uppercase tracking-wide">Скарбничка успіху (Рефлексія)</h2>
+                <p class="text-lg text-gray-200">Оберіть вашу монету успіху на сьогоднішньому уроці:</p>
+            </div>
+
+            <div class="flex justify-center flex-wrap gap-6 pt-2">
+                <button onclick="selectReflection('Все зрозуміло! Працював легко та із задоволенням.')" class="group bg-brand-dark hover:border-brand-yellow border-4 border-gray-700 p-6 rounded-2xl text-center space-y-3 w-48 transition transform hover:scale-105 shadow-xl">
+                    <div class="text-6xl group-hover:bounce">🪙</div>
+                    <div class="text-base font-black text-brand-yellow">Все зрозуміло!</div>
+                    <p class="text-xs text-gray-400">Легко розв'язував завдання</p>
+                </button>
+                <button onclick="selectReflection('Все вийшло добре! Матеріал засвоєно.')" class="group bg-brand-dark hover:border-brand-yellow border-4 border-gray-700 p-6 rounded-2xl text-center space-y-3 w-48 transition transform hover:scale-105 shadow-xl">
+                    <div class="text-6xl group-hover:bounce">🥇</div>
+                    <div class="text-base font-black text-green-400">Добре розібрався</div>
+                    <p class="text-xs text-gray-400">Були незначні питання</p>
+                </button>
+                <button onclick="selectReflection('Потрібно ще трохи потренуватися та попрацювати.')" class="group bg-brand-dark hover:border-brand-yellow border-4 border-gray-700 p-6 rounded-2xl text-center space-y-3 w-48 transition transform hover:scale-105 shadow-xl">
+                    <div class="text-6xl group-hover:bounce">⭐</div>
+                    <div class="text-base font-black text-orange-400">Потрібна практика</div>
+                    <p class="text-xs text-gray-400">Ще повторю правила</p>
+                </button>
+            </div>
+            <div id="refl-msg" class="hidden text-xl text-brand-yellow font-black pt-4"></div>
+        </section>
+
+    </main>
+
+    <!-- Footer with Author Signature -->
+    <footer class="bg-brand-card border-t-2 border-brand-yellow py-5 px-4 text-center text-sm font-bold text-gray-300 mt-12">
+        <p>Математика 5 клас • Автор розробки: <span class="text-brand-yellow font-black">Галина Фолис</span> | 27.10.2026</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Zoom Font Controller
+        let currentZoom = 100;
+        function changeFontSize(delta) {
+            currentZoom += delta * 5;
+            if (currentZoom < 85) currentZoom = 85;
+            if (currentZoom > 130) currentZoom = 130;
+            document.getElementById('font-size-val').innerText = currentZoom + '%';
+            document.documentElement.style.fontSize = (currentZoom / 100 * 16) + 'px';
+        }
+
+        // Fullscreen Toggle
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {});
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Reveal Oral Answers
+        function toggleAnswer(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('hidden');
+        }
+
+        // Drag & Drop Sorting Game
+        const cards = document.querySelectorAll('.drag-card');
+        const dropZones = document.querySelectorAll('.drop-zone');
+
+        cards.forEach(card => {
+            card.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', card.innerText);
+                e.dataTransfer.setData('category', card.dataset.category);
+                card.classList.add('opacity-50');
+            });
+            card.addEventListener('dragend', () => {
+                card.classList.remove('opacity-50');
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('border-brand-yellow');
+            });
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('border-brand-yellow');
+            });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('border-brand-yellow');
+                const category = e.dataTransfer.getData('category');
+                const text = e.dataTransfer.getData('text/plain');
+
+                if (zone.dataset.category === category) {
+                    const container = zone.querySelector('.cards-container');
+                    const newCard = document.createElement('div');
+                    newCard.className = 'bg-green-700 text-white text-sm font-bold px-3 py-1.5 rounded-lg border border-green-400 font-mono';
+                    newCard.innerText = text;
+                    container.appendChild(newCard);
+
+                    cards.forEach(c => {
+                        if (c.innerText === text) c.remove();
+                    });
+
+                    confetti({ particleCount: 25, spread: 50, origin: { y: 0.6 } });
+                } else {
+                    alert('Неправильна категорія! Спробуйте ще раз.');
+                }
+            });
+        });
+
+        function resetSortingGame() {
+            location.reload();
+        }
+
+        // MATCHING GAME LOGIC (Task 474)
+        let selectedMatchLeft = null;
+
+        function selectMatchLeft(btn, id) {
+            document.querySelectorAll('.match-left-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedMatchLeft = { btn: btn, id: id };
+        }
+
+        function selectMatchRight(btn, id) {
+            if (!selectedMatchLeft) {
+                alert('Спочатку оберіть величину з лівого стовпчика!');
+                return;
+            }
+
+            if (selectedMatchLeft.id === id) {
+                selectedMatchLeft.btn.classList.remove('selected');
+                selectedMatchLeft.btn.classList.add('matched');
+                btn.classList.add('matched');
+
+                confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
+                selectedMatchLeft = null;
+
+                checkAllMatches();
+            } else {
+                alert('Неправильна пара! Спробуйте інший варіант.');
+            }
+        }
+
+        function checkAllMatches() {
+            const matchedCount = document.querySelectorAll('.match-left-btn.matched').length;
+            if (matchedCount === 6) {
+                const status = document.getElementById('match-status');
+                status.classList.remove('hidden');
+                status.className = 'text-center text-xl font-black p-4 rounded-xl bg-green-900/80 text-green-200 border-2 border-green-400';
+                status.innerText = 'Чудово! Ви правильно встановили всі відповідності!';
+                confetti({ particleCount: 100, spread: 90, origin: { y: 0.5 } });
+            }
+        }
+
+        // CANVAS ENGINE (MULTILINE TEXT + RESIZE + DRAWINGS PRESERVATION)
+        const canvasStates = {};
+
+        function initCanvases() {
+            for (let i = 1; i <= 5; i++) {
+                const container = document.getElementById(`canvas-container-${i}`);
+                const canvas = document.getElementById(`canvas-${i}`);
+                if (!canvas || !container) continue;
+
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+
+                const ctx = canvas.getContext('2d');
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#ffcc00';
+
+                canvasStates[i] = {
+                    canvas: canvas,
+                    container: container,
+                    ctx: ctx,
+                    isDrawing: false,
+                    tool: 'pen',
+                    color: '#ffcc00',
+                    history: [],
+                    activeTextarea: null
+                };
+
+                // Pre-draw Rectangle on Canvas 3 (Task 462) SHIFTED LEFT
+                if (i === 3) {
+                    drawPresetRectangleLeft(ctx, canvas.width, canvas.height);
+                }
+
+                saveState(i);
+
+                // Mouse events
+                canvas.addEventListener('mousedown', (e) => handleCanvasStart(i, e));
+                canvas.addEventListener('mousemove', (e) => handleCanvasMove(i, e));
+                canvas.addEventListener('mouseup', () => handleCanvasEnd(i));
+                canvas.addEventListener('mouseleave', () => handleCanvasEnd(i));
+
+                // Touch events
+                canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    handleCanvasStart(i, e.touches[0]);
+                });
+                canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    handleCanvasMove(i, e.touches[0]);
+                });
+                canvas.addEventListener('touchend', () => handleCanvasEnd(i));
+            }
+        }
+
+        // Draw rectangle in the LEFT THIRD/HALF of canvas (Task 462)
+        function drawPresetRectangleLeft(ctx, w, h) {
+            ctx.save();
+            ctx.strokeStyle = '#ffcc00';
+            ctx.lineWidth = 4;
+            ctx.fillStyle = 'rgba(255, 204, 0, 0.12)';
+
+            // Position shifted to the left
+            const rectW = Math.min(w * 0.38, 200);
+            const rectH = Math.min(h * 0.52, 130);
+            const startX = 35; // Left margin
+            const startY = (h - rectH) / 2;
+
+            ctx.fillRect(startX, startY, rectW, rectH);
+            ctx.strokeRect(startX, startY, rectW, rectH);
+
+            // Labels
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 18px Inter, sans-serif';
+            ctx.fillText('a = 12 см', startX + rectW / 2 - 35, startY - 10);
+            ctx.fillText('b = 3 дм (30 см)', startX + rectW + 10, startY + rectH / 2 + 5);
+
+            ctx.restore();
+        }
+
+        function getPos(canvas, evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+
+        function handleCanvasStart(id, evt) {
+            const state = canvasStates[id];
+            
+            // Close any existing active text input first
+            if (state.activeTextarea) {
+                commitTextareaToCanvas(id);
+                return;
+            }
+
+            const pos = getPos(state.canvas, evt);
+
+            if (state.tool === 'text') {
+                createCanvasTextarea(id, pos.x, pos.y);
+                return;
+            }
+
+            state.isDrawing = true;
+            state.ctx.beginPath();
+            state.ctx.moveTo(pos.x, pos.y);
+        }
+
+        function handleCanvasMove(id, evt) {
+            const state = canvasStates[id];
+            if (!state.isDrawing || state.tool === 'text') return;
+            const pos = getPos(state.canvas, evt);
+
+            if (state.tool === 'pen') {
+                state.ctx.strokeStyle = state.color;
+                state.ctx.lineWidth = 3;
+            } else if (state.tool === 'eraser') {
+                state.ctx.strokeStyle = '#1a1a1a';
+                state.ctx.lineWidth = 26;
+            }
+            state.ctx.lineTo(pos.x, pos.y);
+            state.ctx.stroke();
+        }
+
+        function handleCanvasEnd(id) {
+            const state = canvasStates[id];
+            if (state.isDrawing) {
+                state.isDrawing = false;
+                saveState(id);
+            }
+        }
+
+        // Multiline Textarea Overlay for typing on canvas
+        function createCanvasTextarea(id, x, y) {
+            const state = canvasStates[id];
+            const container = state.container;
+
+            const ta = document.createElement('textarea');
+            ta.className = 'canvas-textarea';
+            ta.style.left = x + 'px';
+            ta.style.top = y + 'px';
+            ta.style.width = '300px';
+            ta.style.height = '120px';
+            ta.style.color = state.color;
+
+            // Prevent canvas mousedown when clicking on textarea
+            ta.addEventListener('mousedown', (e) => e.stopPropagation());
+            ta.addEventListener('touchstart', (e) => e.stopPropagation());
+
+            container.appendChild(ta);
+            setTimeout(() => ta.focus(), 10);
+
+            state.activeTextarea = {
+                element: ta,
+                x: x,
+                y: y
+            };
+
+            // Commit on blur
+            ta.addEventListener('blur', () => {
+                commitTextareaToCanvas(id);
+            });
+        }
+
+        function commitTextareaToCanvas(id) {
+            const state = canvasStates[id];
+            if (!state.activeTextarea) return;
+
+            const { element, x, y } = state.activeTextarea;
+            const text = element.value;
+
+            if (text && text.trim().length > 0) {
+                const ctx = state.ctx;
+                ctx.save();
+                ctx.fillStyle = state.color;
+                ctx.font = 'bold 20px Inter, sans-serif';
+                ctx.textBaseline = 'top';
+
+                const lines = text.split('\n');
+                const lineHeight = 26;
+
+                lines.forEach((line, index) => {
+                    ctx.fillText(line, x, y + (index * lineHeight));
+                });
+
+                ctx.restore();
+                saveState(id);
+            }
+
+            if (element && element.parentNode) {
+                element.parentNode.removeChild(element);
+            }
+            state.activeTextarea = null;
+        }
+
+        // Resize Canvas Height Function
+        function resizeCanvasHeight(id, delta) {
+            const state = canvasStates[id];
+            if (state.activeTextarea) {
+                commitTextareaToCanvas(id);
+            }
+            const currentHeight = state.container.clientHeight;
+            const newHeight = Math.max(200, Math.min(700, currentHeight + delta));
+
+            // Save image data before resize
+            const oldImageData = state.ctx.getImageData(0, 0, state.canvas.width, state.canvas.height);
+
+            state.container.style.height = newHeight + 'px';
+            state.canvas.height = newHeight;
+
+            // Restore canvas settings & image
+            state.ctx.lineWidth = 3;
+            state.ctx.lineCap = 'round';
+            state.ctx.strokeStyle = state.color;
+            state.ctx.putImageData(oldImageData, 0, 0);
+
+            saveState(id);
+        }
+
+        function saveState(id) {
+            const state = canvasStates[id];
+            if (state.history.length >= 12) state.history.shift();
+            state.history.push(state.ctx.getImageData(0, 0, state.canvas.width, state.canvas.height));
+        }
+
+        function undoCanvas(id) {
+            const state = canvasStates[id];
+            if (state.activeTextarea) {
+                commitTextareaToCanvas(id);
+            }
+            if (state.history.length > 1) {
+                state.history.pop();
+                state.ctx.putImageData(state.history[state.history.length - 1], 0, 0);
+            }
+        }
+
+        function clearCanvas(id) {
+            const state = canvasStates[id];
+            if (state.activeTextarea) {
+                commitTextareaToCanvas(id);
+            }
+            state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
+            if (id === 3) {
+                drawPresetRectangleLeft(state.ctx, state.canvas.width, state.canvas.height);
+            }
+            saveState(id);
+        }
+
+        function setTool(id, tool, evt) {
+            if (canvasStates[id] && canvasStates[id].activeTextarea) {
+                commitTextareaToCanvas(id);
+            }
+            canvasStates[id].tool = tool;
+            const btns = document.querySelectorAll(`.tool-btn-${id}`);
+            btns.forEach(b => {
+                b.classList.remove('bg-brand-yellow', 'text-black');
+                b.classList.add('bg-gray-800', 'text-gray-200');
+            });
+            
+            const targetBtn = evt ? evt.currentTarget : btns[0];
+            if (targetBtn) {
+                targetBtn.classList.remove('bg-gray-800', 'text-gray-200');
+                targetBtn.classList.add('bg-brand-yellow', 'text-black');
+            }
+        }
+
+        function setColor(id, color) {
+            canvasStates[id].color = color;
+        }
+
+        window.onload = function() {
+            initCanvases();
+        };
+
+        // Task Checks Logic
+        function checkTask2() {
+            const v1 = document.getElementById('input-task-2-1').value.trim();
+            const v2 = document.getElementById('input-task-2-2').value.trim();
+            const res = document.getElementById('result-task-2');
+            res.classList.remove('hidden', 'bg-green-900/80', 'text-green-200', 'bg-red-900/80', 'text-red-200');
+
+            if (v1 === '3440' && v2 === '348') {
+                res.classList.add('bg-green-900/80', 'text-green-200');
+                res.innerText = 'Відмінно! 1) (520 - 480) · (39 + 47) = 40 · 86 = 3440; 2) (4275 + 5121) : 27 = 9396 : 27 = 348.';
+                confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
+            } else {
+                res.classList.add('bg-red-900/80', 'text-red-200');
+                res.innerText = 'Перевірте обчислення! Перевірте правильність виконання дій у дужках.';
+            }
+        }
+
+        function checkTask3() {
+            const val = document.getElementById('input-task-3').value.trim();
+            const res = document.getElementById('result-task-3');
+            res.classList.remove('hidden', 'bg-green-900/80', 'text-green-200', 'bg-red-900/80', 'text-red-200');
+
+            if (val === '28') {
+                res.classList.add('bg-green-900/80', 'text-green-200');
+                res.innerText = 'Супер! Ручка: 8 грн, зошит: 8 + a. Загальна вартість: 8 + (8 + a) = 16 + a грн. При a = 12: 16 + 12 = 28 грн.';
+                confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
+            } else {
+                res.classList.add('bg-red-900/80', 'text-red-200');
+                res.innerText = 'Не зовсім так. Зошит коштує (8 + a). Вся покупка: 16 + a. При a = 12: 16 + 12 = 28 грн.';
+            }
+        }
+
+        function checkTask4() {
+            const val = document.getElementById('input-task-4').value.trim();
+            const res = document.getElementById('result-task-4');
+            res.classList.remove('hidden', 'bg-green-900/80', 'text-green-200', 'bg-red-900/80', 'text-red-200');
+
+            if (val === '84') {
+                res.classList.add('bg-green-900/80', 'text-green-200');
+                res.innerText = 'Правильно! Спочатку b = 3 дм = 30 см. Формула P = (a + b) · 2 = (12 + 30) · 2 = 84 см.';
+                confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
+            } else {
+                res.classList.add('bg-red-900/80', 'text-red-200');
+                res.innerText = 'Зведіть одиниці до см! 3 дм = 30 см, P = (12 + 30) · 2 = 84 см.';
+            }
+        }
+
+        function checkTask5() {
+            const val = document.getElementById('input-task-5').value.trim();
+            const res = document.getElementById('result-task-5');
+            res.classList.remove('hidden', 'bg-green-900/80', 'text-green-200', 'bg-red-900/80', 'text-red-200');
+
+            if (val === '63') {
+                res.classList.add('bg-green-900/80', 'text-green-200');
+                res.innerText = 'Чудово! Формула: m = 180 - 13 · x. При x = 9: m = 180 - 13 · 9 = 180 - 117 = 63 грн.';
+                confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
+            } else {
+                res.classList.add('bg-red-900/80', 'text-red-200');
+                res.innerText = 'Помилка! Вартість пиріжків: 13 · 9 = 117 грн. Залишок m = 180 - 117 = 63 грн.';
+            }
+        }
+
+        function checkTask6() {
+            const val = document.getElementById('input-task-6').value.trim();
+            const res = document.getElementById('result-task-6');
+            res.classList.remove('hidden', 'bg-green-900/80', 'text-green-200', 'bg-red-900/80', 'text-red-200');
+
+            if (val === '186') {
+                res.classList.add('bg-green-900/80', 'text-green-200');
+                res.innerText = 'Блискуче! Вираз: (x - y) · (m : n) = (48 - 17) · (72 : 12) = 31 · 6 = 186.';
+                confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
+            } else {
+                res.classList.add('bg-red-900/80', 'text-red-200');
+                res.innerText = 'Невірно. Вираз: (x - y) · (m : n) = (48 - 17) · (72 : 12) = 31 · 6 = 186.';
+            }
+        }
+
+        // Break Timer
+        let timerInterval;
+        function startBreakTimer() {
+            const btn = document.getElementById('timer-btn');
+            const display = document.getElementById('timer-display');
+            btn.classList.add('hidden');
+            display.classList.remove('hidden');
+
+            let timeLeft = 30;
+            display.innerText = timeLeft;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                display.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    display.innerText = 'Час вийшов! Повертаємося до уроку!';
+                    setTimeout(() => {
+                        btn.classList.remove('hidden');
+                        display.classList.add('hidden');
+                    }, 3000);
+                }
+            }, 1000);
+        }
+
+        // Reflection Picker
+        function selectReflection(msg) {
+            const res = document.getElementById('refl-msg');
+            res.classList.remove('hidden');
+            res.innerText = 'Ваш вибір збережено: "' + msg + '"';
+            confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
+        }
+    </script>
+</body>
+</html>
